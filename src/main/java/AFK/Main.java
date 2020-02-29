@@ -26,6 +26,7 @@ public class Main extends Plugin {
                 while (aks) {
                     for (Player p : playerGroup.all()) {
                         if (p.x / 8 == PlayerPos.get(p.uuid).getX() && p.y / 8 == PlayerPos.get(p.uuid).getY()) {
+                            p.getInfo().timesKicked--;
                             p.con.kick("Connection Closed for being AFK",1);
                         } else {
                             PlayerPos.get(p.uuid).setX(p.x / 8);
