@@ -1,0 +1,7 @@
+{
+  "name": "AFKick",
+  "author": "L0615T1C5.216AC:9437 [Impact Phd]",
+  "main": "AFK.Main",
+  "description": "Kicks afk player after not moving for 5 minutes.",
+  "version": 104
+}
