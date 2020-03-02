@@ -17,7 +17,7 @@ import static mindustry.Vars.*;
 
 public class Main extends Plugin {
     private boolean aks = false;
-    public static HashMap<String, pp> PlayerPos = new HashMap<>();
+    public HashMap<String, pp> PlayerPos = new HashMap<>();
 
     public Main() throws InterruptedException {
         Thread AS = new Thread() {
@@ -25,9 +25,10 @@ public class Main extends Plugin {
                 Log.info("AFK started Successfully!");
                 while (aks) {
                     for (Player p : playerGroup.all()) {
-                        if (p.x / 8 == PlayerPos.get(p.uuid).getX() && p.y / 8 == PlayerPos.get(p.uuid).getY()) {
+                        if (PlayerPos.get(p.uuid).getX()+2.5 > p.x/8 && p.x/8 > PlayerPos.get(p.uuid).getX()-2.5 && PlayerPos.get(p.uuid).getY()+2.5 > p.y/8 && p.y/8 > PlayerPos.get(p.uuid).getY()-2.5) {
+                            PlayerPos.remove(p.uuid);
                             p.getInfo().timesKicked--;
-                            Call.sendMessage(p.name + " [white]was kicked for innactivity.");
+                            Call.onInfoToast(p.name + " [white]was kicked for innactivity.", 3);
                             p.con.kick("Connection Closed for being AFK",1);
                         } else {
                             PlayerPos.get(p.uuid).setX(p.x / 8);
@@ -53,6 +54,10 @@ public class Main extends Plugin {
             PlayerPos.get(player.uuid).setY(0);
         });
         Events.on(EventType.PlayerLeave.class, event -> {
+            Player player = event.player;
+            PlayerPos.remove(player.uuid);
+        });
+        Events.on(EventType.PlayerBanEvent.class, event -> {
             Player player = event.player;
             PlayerPos.remove(player.uuid);
         });
