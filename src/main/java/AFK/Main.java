@@ -27,7 +27,7 @@ public class Main extends Plugin {
                 while (aks) {
                     for (Player p : playerGroup.all()) {
                         if (PlayerPos.containsKey(p.uuid)) {
-                            if (PlayerPos.get(p.uuid).getX()+2.5 > p.x/8 && p.x/8 > PlayerPos.get(p.uuid).getX()-2.5 && PlayerPos.get(p.uuid).getY()+2.5 > p.y/8 && p.y/8 > PlayerPos.get(p.uuid).getY()-2.5) {//if hasn't moved +- 2.5 x y
+                            if (PlayerPos.get(p.uuid).getX() + 2.5 > p.x / 8 && p.x / 8 > PlayerPos.get(p.uuid).getX() - 2.5 && PlayerPos.get(p.uuid).getY() + 2.5 > p.y / 8 && p.y / 8 > PlayerPos.get(p.uuid).getY() - 2.5) {//if hasn't moved +- 2.5 x y
                                 if (PAFKN.containsKey(p.uuid)) {
                                     PlayerPos.remove(p.uuid);
                                     p.getInfo().timesKicked--;
@@ -49,13 +49,13 @@ public class Main extends Plugin {
                                     p.con.kick("Connection Closed for being AFK", 60);
                                 }
                             } else {
-                                Log.err("Player not in database.");
-                                p.getInfo().timesKicked--;
-                                p.con.kick("Error",1);
+                                PlayerPos.get(p.uuid).setX(p.x / 8);
+                                PlayerPos.get(p.uuid).setY(p.y / 8);
                             }
                         } else {
-                            PlayerPos.get(p.uuid).setX(p.x / 8);
-                            PlayerPos.get(p.uuid).setY(p.y / 8);
+                            Log.err("Player not in database.");
+                            p.getInfo().timesKicked--;
+                            p.con.kick("Error", 1);
                         }
                     }
                     try {
@@ -82,16 +82,16 @@ public class Main extends Plugin {
             }
         });
         Events.on(EventType.PlayerLeave.class, event -> {
+            Player player = event.player;
             if (PlayerPos.containsKey(player.uuid)) {
-                Player player = event.player;
                 PlayerPos.remove(player.uuid);
             } else {
                 Log.err("Player Leaving not in PlayerPos database!");
             }
         });
         Events.on(EventType.PlayerBanEvent.class, event -> {
+            Player player = event.player;
             if (PlayerPos.containsKey(player.uuid)) {
-                Player player = event.player;
                 PlayerPos.remove(player.uuid);
             } else {
                 Log.err("Player Leaving not in PlayerPos database!");
