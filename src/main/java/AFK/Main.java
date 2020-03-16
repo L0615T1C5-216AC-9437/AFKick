@@ -20,6 +20,7 @@ public class Main extends Plugin {
     private int hour = 0;
     public HashMap<String, pp> PlayerPos = new HashMap<>();
     public HashMap<String, Integer> PAFKN = new HashMap<>();
+    public HashMap<String, Integer> bb = new HashMap<>();
 
     public Main() throws InterruptedException {
         Thread AS = new Thread() {
@@ -28,7 +29,7 @@ public class Main extends Plugin {
                 while (aks) {
                     for (Player p : playerGroup.all()) {
                         if (PlayerPos.containsKey(p.uuid)) {
-                            if (PlayerPos.get(p.uuid).getX() + 2.5 > p.x / 8 && p.x / 8 > PlayerPos.get(p.uuid).getX() - 2.5 && PlayerPos.get(p.uuid).getY() + 2.5 > p.y / 8 && p.y / 8 > PlayerPos.get(p.uuid).getY() - 2.5) {//if hasn't moved +- 2.5 x y
+                            if (PlayerPos.get(p.uuid).getX() + 2.5 > p.x / 8 && p.x / 8 > PlayerPos.get(p.uuid).getX() - 2.5 && PlayerPos.get(p.uuid).getY() + 2.5 > p.y / 8 && p.y / 8 > PlayerPos.get(p.uuid).getY() - 2.5 && !bb.containsKey(p.uuid)) {//if hasn't moved +- 2.5 x y or bb = 0
                                 if (PAFKN.containsKey(p.uuid)) {
                                     PlayerPos.remove(p.uuid);
                                     p.getInfo().timesKicked--;
@@ -59,6 +60,7 @@ public class Main extends Plugin {
                             p.con.kick("Error", 1);
                         }
                     }
+                    bb.clear();
                     try {
                         TimeUnit.SECONDS.sleep(5 * 60);
                     } catch (InterruptedException e) {
@@ -116,6 +118,14 @@ public class Main extends Plugin {
                 PlayerPos.remove(player.uuid);
             } else {
                 Log.err("Player Leaving not in PlayerPos database!");
+            }
+        });
+        Events.on(EventType.BlockBuildEndEvent.class, event -> {
+            Player player = event.player;
+            if (bb.containsKey(player.uuid)) {
+                bb.replace(player.uuid,bb.get(player.uuid) + 1);
+            } else {
+                bb.put(player.uuid, 1);
             }
         });
     }
