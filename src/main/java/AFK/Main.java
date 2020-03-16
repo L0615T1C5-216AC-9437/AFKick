@@ -17,6 +17,7 @@ import static mindustry.Vars.*;
 
 public class Main extends Plugin {
     private boolean aks = false;
+    private int hour = 0;
     public HashMap<String, pp> PlayerPos = new HashMap<>();
     public HashMap<String, Integer> PAFKN = new HashMap<>();
 
@@ -70,6 +71,26 @@ public class Main extends Plugin {
         aks = true;
         AS.start();
         Log.info("Attempting to start AFK...");
+
+        Thread hourTimer = new Thread() {
+            public void run(){
+                try {
+                    Thread.sleep(60 * 60 * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                hour++;
+            }
+        };
+        Events.on(EventType.WaveEvent.class, event -> {
+            if (hour == 3) {
+                PAFKN.clear();
+                hour = 0;
+            } else {
+                hour++;
+            }
+        });
+
 
         Events.on(EventType.PlayerJoin.class, event -> {
             Player player = event.player;
