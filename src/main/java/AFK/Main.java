@@ -35,11 +35,13 @@ public class Main extends Plugin {
                                     p.getInfo().timesKicked--;
                                     if (PAFKN.get(p.uuid) > 4) {
                                         PAFKN.remove(p.uuid);
+                                        PlayerPos.remove(p.uuid);
                                         Call.onInfoToast(p.name + " [white]was [scarlet]Banned [white]for constant inactivity.", 5);
                                         p.con.kick("1h temp ban for constantly being kicked.", 60 * 60);
                                     } else {
                                         int i = PAFKN.get(p.uuid) + 1;
                                         PAFKN.replace(p.uuid, i);
+                                        PlayerPos.remove(p.uuid);
                                         Call.onInfoToast(p.name + " [white]was kicked for inactivity.", 5);
                                         p.con.kick("Connection Closed for being AFK", 60);
                                     }
