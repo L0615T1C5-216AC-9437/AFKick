@@ -123,6 +123,7 @@ public class Main extends Plugin {
             }
         });
         Events.on(EventType.BlockBuildEndEvent.class, event -> {
+            if (event.player == null) return;
             Player player = event.player;
             if (bb.containsKey(player.uuid)) {
                 bb.replace(player.uuid,bb.get(player.uuid) + 1);
