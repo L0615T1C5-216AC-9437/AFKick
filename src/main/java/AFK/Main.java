@@ -3,6 +3,8 @@ package AFK;
 //-----imports-----//
 import arc.Events;
 import arc.util.Log;
+import mindustry.Vars;
+import mindustry.core.GameState;
 import mindustry.core.NetServer;
 import mindustry.entities.type.Player;
 import mindustry.game.EventType;
@@ -27,47 +29,52 @@ public class Main extends Plugin {
             public void run() {
                 Log.info("AFK started Successfully!");
                 while (aks) {
+                    if (playerGroup.isEmpty()) continue;
                     for (Player p : playerGroup.all()) {
-                        if (PlayerPos.containsKey(p.uuid)) {
-                            if (PlayerPos.get(p.uuid).getX() + 2.5 > p.x / 8 && p.x / 8 > PlayerPos.get(p.uuid).getX() - 2.5 && PlayerPos.get(p.uuid).getY() + 2.5 > p.y / 8 && p.y / 8 > PlayerPos.get(p.uuid).getY() - 2.5 && !bb.containsKey(p.uuid)) {//if hasn't moved +- 2.5 x y or bb = 0
-                                if (PAFKN.containsKey(p.uuid)) {
-                                    PlayerPos.remove(p.uuid);
-                                    p.getInfo().timesKicked--;
-                                    if (PAFKN.get(p.uuid) > 4) {
-                                        PAFKN.remove(p.uuid);
+                        if (Vars.state.is(GameState.State.menu)) {
+                            return;
+                        }
+                        if (state.teams.get(p.getTeam()).hasCore()) {
+                            if (PlayerPos.containsKey(p.uuid)) {
+                                if (PlayerPos.get(p.uuid).getX() + 2.5 > p.x / 8 && p.x / 8 > PlayerPos.get(p.uuid).getX() - 2.5 && PlayerPos.get(p.uuid).getY() + 2.5 > p.y / 8 && p.y / 8 > PlayerPos.get(p.uuid).getY() - 2.5 && !bb.containsKey(p.uuid)) {//if hasn't moved +- 2.5 x y or bb = 0
+                                    if (PAFKN.containsKey(p.uuid)) {
                                         PlayerPos.remove(p.uuid);
-                                        Call.onInfoToast(p.name + " [white]was [scarlet]Banned [white]for constant inactivity.", 5);
-                                        p.con.kick("1h temp ban for constantly being kicked.", 60 * 60);
+                                        p.getInfo().timesKicked--;
+                                        if (PAFKN.get(p.uuid) > 4) {
+                                            PAFKN.remove(p.uuid);
+                                            PlayerPos.remove(p.uuid);
+                                            Call.onInfoToast(p.name + " [white]was [scarlet]Banned [white]for constant inactivity.", 5);
+                                            p.con.kick("1h temp ban for constantly being kicked.", 60 * 60);
+                                        } else {
+                                            int i = PAFKN.get(p.uuid) + 1;
+                                            PAFKN.replace(p.uuid, i);
+                                            PlayerPos.remove(p.uuid);
+                                            Call.onInfoToast(p.name + " [white]was kicked for inactivity.", 5);
+                                            p.con.kick("Connection Closed for being AFK", 60);
+                                        }
                                     } else {
-                                        int i = PAFKN.get(p.uuid) + 1;
-                                        PAFKN.replace(p.uuid, i);
+                                        PAFKN.put(p.uuid, 0);
                                         PlayerPos.remove(p.uuid);
+                                        p.getInfo().timesKicked--;
                                         Call.onInfoToast(p.name + " [white]was kicked for inactivity.", 5);
                                         p.con.kick("Connection Closed for being AFK", 60);
                                     }
                                 } else {
-                                    PAFKN.put(p.uuid, 0);
-                                    PlayerPos.remove(p.uuid);
-                                    p.getInfo().timesKicked--;
-                                    Call.onInfoToast(p.name + " [white]was kicked for inactivity.", 5);
-                                    p.con.kick("Connection Closed for being AFK", 60);
+                                    PlayerPos.get(p.uuid).setX(p.x / 8);
+                                    PlayerPos.get(p.uuid).setY(p.y / 8);
                                 }
                             } else {
-                                PlayerPos.get(p.uuid).setX(p.x / 8);
-                                PlayerPos.get(p.uuid).setY(p.y / 8);
+                                Log.err("Player not in database.");
                             }
-                        } else {
-                            Log.err("Player not in database.");
-                            p.getInfo().timesKicked--;
-                            p.con.kick("Error", 1);
+                        }
+                        bb.clear();
+                        try {
+                            TimeUnit.SECONDS.sleep(5 * 60);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
-                    bb.clear();
-                    try {
-                        TimeUnit.SECONDS.sleep(5 * 60);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
                 }
             }
         };
@@ -86,6 +93,7 @@ public class Main extends Plugin {
                 hour++;
             }
         };
+        hourTimer.start();
         Events.on(EventType.WaveEvent.class, event -> {
             if (hour == 3) {
                 PAFKN.clear();
@@ -110,8 +118,6 @@ public class Main extends Plugin {
             Player player = event.player;
             if (PlayerPos.containsKey(player.uuid)) {
                 PlayerPos.remove(player.uuid);
-            } else {
-                Log.err("Player Leaving not in PlayerPos database!");
             }
         });
         Events.on(EventType.PlayerBanEvent.class, event -> {
